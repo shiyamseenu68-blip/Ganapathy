@@ -39,25 +39,58 @@ body {
   touch-action: manipulation;
 }
 
-/* Background Atmosphere Glow - Dark Divine Black-Light */
+/* Side Screen Animated Light Bars */
+.side-light-bar {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(180deg, #f59e0b, #ef4444, #ec4899, #8b5cf6, #3b82f6, #10b981, #fef08a, #f59e0b);
+  background-size: 100% 300%;
+  animation: sideLightBeam 5s linear infinite;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.9), 0 0 45px rgba(236, 72, 153, 0.75);
+  border-radius: 999px;
+}
+.side-light-left { left: 10px; }
+.side-light-right { right: 10px; }
+
+@keyframes sideLightBeam {
+  0% {
+    background-position: 0% 0%;
+    filter: hue-rotate(0deg) drop-shadow(0 0 20px #f59e0b);
+  }
+  50% {
+    filter: hue-rotate(180deg) drop-shadow(0 0 35px #ec4899);
+  }
+  100% {
+    background-position: 0% 300%;
+    filter: hue-rotate(360deg) drop-shadow(0 0 20px #f59e0b);
+  }
+}
+
+/* Background Atmosphere Glow - Multi-Color All-Spectrum Black-Light */
 .bg-glow {
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(circle at 50% 35%, rgba(245, 158, 11, 0.28) 0%, rgba(9, 9, 11, 0.98) 75%),
-    radial-gradient(circle at 15% 85%, rgba(220, 38, 38, 0.25) 0%, transparent 55%),
-    radial-gradient(circle at 85% 85%, rgba(234, 88, 12, 0.25) 0%, transparent 55%);
+    radial-gradient(circle at 50% 35%, rgba(245, 158, 11, 0.32) 0%, rgba(9, 9, 11, 0.98) 75%),
+    radial-gradient(circle at 15% 85%, rgba(236, 72, 153, 0.28) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.28) 0%, transparent 55%);
   pointer-events: none;
   z-index: 0;
-  animation: ambientFlamePulse 5s infinite ease-in-out;
+  animation: allColorSpectrumPulse 7s infinite ease-in-out;
 }
 
-@keyframes ambientFlamePulse {
-  0%, 100% { filter: brightness(1.0) contrast(1.0); }
-  50% { filter: brightness(1.25) contrast(1.15); }
+@keyframes allColorSpectrumPulse {
+  0% { filter: hue-rotate(0deg) brightness(1.0); }
+  33% { filter: hue-rotate(120deg) brightness(1.2); }
+  66% { filter: hue-rotate(240deg) brightness(1.15); }
+  100% { filter: hue-rotate(360deg) brightness(1.0); }
 }
 
-/* Main Container Card with Glowing Black-Light Aura */
+/* Main Container Card with Glowing All-Colors Black-Light Aura */
 .app-card {
   position: relative;
   z-index: 10;
@@ -65,28 +98,32 @@ body {
   max-width: 620px;
   background: rgba(18, 18, 22, 0.94);
   backdrop-filter: blur(20px);
-  border: 1.5px solid rgba(245, 158, 11, 0.6);
+  border: 1.5px solid rgba(245, 158, 11, 0.7);
   border-radius: 24px;
   padding: 22px;
   box-shadow: 
     0 0 35px rgba(245, 158, 11, 0.45),
-    0 0 70px rgba(217, 119, 6, 0.25),
+    0 0 70px rgba(236, 72, 153, 0.3),
     0 30px 60px -12px rgba(0, 0, 0, 0.98);
-  animation: cardAuraPulse 4s infinite ease-in-out;
+  animation: cardRainbowAuraPulse 6s infinite ease-in-out;
 }
 
-@keyframes cardAuraPulse {
-  0%, 100% {
-    box-shadow: 
-      0 0 30px rgba(245, 158, 11, 0.4),
-      0 0 60px rgba(217, 119, 6, 0.2),
-      0 30px 60px -12px rgba(0, 0, 0, 0.98);
+@keyframes cardRainbowAuraPulse {
+  0% {
+    border-color: rgba(245, 158, 11, 0.8);
+    box-shadow: 0 0 35px rgba(245, 158, 11, 0.5), 0 0 70px rgba(239, 68, 68, 0.3);
   }
-  50% {
-    box-shadow: 
-      0 0 50px rgba(254, 240, 138, 0.75),
-      0 0 90px rgba(245, 158, 11, 0.45),
-      0 30px 60px -12px rgba(0, 0, 0, 0.98);
+  33% {
+    border-color: rgba(236, 72, 153, 0.8);
+    box-shadow: 0 0 45px rgba(236, 72, 153, 0.65), 0 0 85px rgba(139, 92, 246, 0.4);
+  }
+  66% {
+    border-color: rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 45px rgba(59, 130, 246, 0.65), 0 0 85px rgba(16, 185, 129, 0.4);
+  }
+  100% {
+    border-color: rgba(245, 158, 11, 0.8);
+    box-shadow: 0 0 35px rgba(245, 158, 11, 0.5), 0 0 70px rgba(239, 68, 68, 0.3);
   }
 }
 

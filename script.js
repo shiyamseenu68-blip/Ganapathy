@@ -190,20 +190,18 @@ let cursorTargetX = 240, cursorTargetY = 360;
 let currentCursorX = 240, currentCursorY = 360;
 
 function emitBrushSparkle(x, y, isColorStage) {
-  const count = isColorStage ? 2 : 1;
+  const count = isColorStage ? 3 : 1;
+  const allColors = ['#fef08a', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#ffffff'];
   for (let i = 0; i < count; i++) {
-    const colors = isColorStage 
-      ? ['#fef08a', '#fbbf24', '#f59e0b', '#f97316', '#ffffff']
-      : ['#a1a1aa', '#d4d4d8', '#fef08a'];
     strokeParticles.push({
-      x: x + (Math.random() * 18 - 9),
-      y: y + (Math.random() * 18 - 9),
-      vx: (Math.random() - 0.5) * 2.2,
-      vy: -Math.random() * 2.5 - 0.5,
-      size: Math.random() * (isColorStage ? 4.5 : 2.5) + 1.2,
-      color: colors[Math.floor(Math.random() * colors.length)],
+      x: x + (Math.random() * 20 - 10),
+      y: y + (Math.random() * 20 - 10),
+      vx: (Math.random() - 0.5) * 2.5,
+      vy: -Math.random() * 2.8 - 0.6,
+      size: Math.random() * (isColorStage ? 5.0 : 3.0) + 1.5,
+      color: allColors[Math.floor(Math.random() * allColors.length)],
       alpha: 1,
-      decay: Math.random() * 0.035 + 0.02
+      decay: Math.random() * 0.03 + 0.015
     });
   }
 }
