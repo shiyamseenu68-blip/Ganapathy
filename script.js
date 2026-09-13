@@ -155,64 +155,69 @@ function initCanvas() {
   drawPaperBackground();
 }
 
+// Divine Brush Sparkles & Atmosphere Engine
+let strokeParticles = [];
+let cursorTargetX = 240, cursorTargetY = 360;
+let currentCursorX = 240, currentCursorY = 360;
+
+function emitBrushSparkle(x, y, isColorStage) {
+  const count = isColorStage ? 2 : 1;
+  for (let i = 0; i < count; i++) {
+    const colors = isColorStage 
+      ? ['#fef08a', '#fbbf24', '#f59e0b', '#f97316', '#ffffff']
+      : ['#a1a1aa', '#d4d4d8', '#fef08a'];
+    strokeParticles.push({
+      x: x + (Math.random() * 18 - 9),
+      y: y + (Math.random() * 18 - 9),
+      vx: (Math.random() - 0.5) * 2.2,
+      vy: -Math.random() * 2.5 - 0.5,
+      size: Math.random() * (isColorStage ? 4.5 : 2.5) + 1.2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 1,
+      decay: Math.random() * 0.035 + 0.02
+    });
+  }
+}
+
+function updateBrushSparkles() {
+  for (let i = strokeParticles.length - 1; i >= 0; i--) {
+    const p = strokeParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= p.decay;
+    if (p.alpha <= 0) {
+      strokeParticles.splice(i, 1);
+    } else {
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+}
+
 function drawPaperBackground() {
   ctx.fillStyle = '#fef3c7';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Subtle Divine Ambient Halo
+  const haloGrad = ctx.createRadialGradient(
+    canvas.width / 2, canvas.height / 2.2, 10,
+    canvas.width / 2, canvas.height / 2.2, 280
+  );
+  haloGrad.addColorStop(0, 'rgba(254, 240, 138, 0.35)');
+  haloGrad.addColorStop(0.6, 'rgba(245, 158, 11, 0.1)');
+  haloGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+  ctx.fillStyle = haloGrad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-// Start Button Click Listener
-startBtn.addEventListener("click", () => {
-  startSongPlayback();
-  startOverlay.classList.add("hidden-overlay");
-  startState(1);
-});
-
-// State Switcher
-function startState(stateNum) {
-  currentState = stateNum;
-  progress = 0;
-  isAnimating = true;
-  finalCelebration.classList.remove("active");
-
-  maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
-
-  if (stateNum === 1) {
-    mainTitle.innerText = "✨ First Image (1 of 3)";
-    subTitle.innerText = "Stage A: Pencil Line Sketching (Baby Ganesha & Mouse)";
-  } else if (stateNum === 2) {
-    mainTitle.innerText = "✨ Second Image (2 of 3)";
-    subTitle.innerText = "Stage A: Pencil Line Sketching (Hibiscus Flower Ganesha)";
-  } else if (stateNum === 3) {
-    mainTitle.innerText = "✨ Third Image (3 of 3)";
-    subTitle.innerText = "Stage A: Pencil Line Sketching (Four-Armed Seated Ganesha)";
-  }
-
-  if (animFrameId) cancelAnimationFrame(animFrameId);
-  renderLoop();
-}
-
-// Render Loop
-function renderLoop() {
-  if (currentState >= 1 && currentState <= 3) {
-    if (isAnimating) {
-      progress += BASE_STEP * speedMultiplier;
-      if (progress >= 100) {
-        progress = 100;
-        isAnimating = false;
-        renderDrawing(currentState, 100);
-        onDrawingStageComplete();
-        return;
-      }
-    }
-    renderDrawing(currentState, progress);
-  } else if (currentState === 4) {
-    updateFireworks();
-  }
-
-  animFrameId = requestAnimationFrame(renderLoop);
-}
-
-// Two-Stage Artist Renderer: Stage A (Pencil ✍️) -> Stage B (Paintbrush 🖌️)
+// Render Drawing Engine
 function renderDrawing(stateNum, pct) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -228,7 +233,7 @@ function renderDrawing(stateNum, pct) {
     strokes = typeof STROKES_3 !== 'undefined' ? STROKES_3 : [];
   }
 
-  // 1. Draw Paper Background
+  // 1. Paper & Divine Halo Background
   drawPaperBackground();
 
   if (pct <= 60) {
@@ -236,7 +241,7 @@ function renderDrawing(stateNum, pct) {
     // STAGE A: REALISTIC PENCIL LINE DRAWING (0% - 60%)
     // ==========================================
     const linePct = pct / 60; // 0.0 to 1.0
-    subTitle.innerText = `Stage A: Line Sketching with Pencil... (${Math.floor(pct)}%)`;
+    subTitle.innerText = `Stage A: Pencil Line Sketching... (${Math.floor(pct)}%)`;
 
     ctx.strokeStyle = '#3b2510';
     ctx.lineWidth = 2.0;
@@ -260,6 +265,7 @@ function renderDrawing(stateNum, pct) {
     }
 
     if (isAnimating && lastPoint) {
+      emitBrushSparkle(lastPoint[0], lastPoint[1], false);
       positionCursor(lastPoint[0], lastPoint[1], "✍️");
     } else {
       hideCursor();
@@ -270,10 +276,10 @@ function renderDrawing(stateNum, pct) {
     // STAGE B: REALISTIC ARTIST COLOUR PAINTING (60% - 100%)
     // ==========================================
     const paintPct = (pct - 60) / 40; // 0.0 to 1.0
-    subTitle.innerText = `Stage B: Realistic Artist Painting... (${Math.floor(pct)}%)`;
+    subTitle.innerText = `Stage B: Realistic Painting & Divine Glow... (${Math.floor(pct)}%)`;
 
     // 1. Render complete pencil sketch lines on paper
-    const pencilAlpha = Math.max(0.1, 0.85 - paintPct * 0.75);
+    const pencilAlpha = Math.max(0.08, 0.85 - paintPct * 0.8);
     ctx.strokeStyle = `rgba(59, 37, 16, ${pencilAlpha})`;
     ctx.lineWidth = 1.8;
     ctx.lineCap = 'round';
@@ -291,11 +297,11 @@ function renderDrawing(stateNum, pct) {
       }
     }
 
-    // 2. Build organic paint mask on offscreen canvas
+    // 2. Build organic wet-ink watercolor paint mask on offscreen canvas
     maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
     maskCtx.fillStyle = '#000000';
     maskCtx.strokeStyle = '#000000';
-    maskCtx.lineWidth = 32 + paintPct * 18;
+    maskCtx.lineWidth = 36 + paintPct * 20;
     maskCtx.lineCap = 'round';
     maskCtx.lineJoin = 'round';
 
@@ -316,28 +322,29 @@ function renderDrawing(stateNum, pct) {
       }
     }
 
-    // Add soft watercolor bloom circle at current brush position
+    // Add soft watercolor bloom spots along current painting strokes
     if (lastPaintPoint) {
       const radGrad = maskCtx.createRadialGradient(
         lastPaintPoint[0], lastPaintPoint[1], 0,
-        lastPaintPoint[0], lastPaintPoint[1], 45
+        lastPaintPoint[0], lastPaintPoint[1], 55
       );
       radGrad.addColorStop(0, 'rgba(0,0,0,1)');
+      radGrad.addColorStop(0.7, 'rgba(0,0,0,0.8)');
       radGrad.addColorStop(1, 'rgba(0,0,0,0)');
       maskCtx.fillStyle = radGrad;
       maskCtx.beginPath();
-      maskCtx.arc(lastPaintPoint[0], lastPaintPoint[1], 45, 0, Math.PI * 2);
+      maskCtx.arc(lastPaintPoint[0], lastPaintPoint[1], 55, 0, Math.PI * 2);
       maskCtx.fill();
     }
 
-    // Also add progressive radial fill from center so image gracefully completes
-    const centerRadius = Math.sqrt(canvas.width**2 + canvas.height**2) * 0.8 * paintPct;
+    // Progressive radial fill from image center so entire image gracefully completes
+    const centerRadius = Math.sqrt(canvas.width**2 + canvas.height**2) * 0.82 * paintPct;
     const centerGrad = maskCtx.createRadialGradient(
       canvas.width / 2, canvas.height / 2, 0,
       canvas.width / 2, canvas.height / 2, Math.max(1, centerRadius)
     );
     centerGrad.addColorStop(0, 'rgba(0,0,0,1)');
-    centerGrad.addColorStop(1, 'rgba(0,0,0,0.2)');
+    centerGrad.addColorStop(1, 'rgba(0,0,0,0.15)');
     maskCtx.fillStyle = centerGrad;
     maskCtx.beginPath();
     maskCtx.arc(canvas.width / 2, canvas.height / 2, Math.max(1, centerRadius), 0, Math.PI * 2);
@@ -354,7 +361,7 @@ function renderDrawing(stateNum, pct) {
     ctx.drawImage(tempColorCanvas, 0, 0);
 
     // Smooth global color fade overlay as progress approaches 100%
-    const smoothGlobalBlend = Math.pow(paintPct, 2.2);
+    const smoothGlobalBlend = Math.pow(paintPct, 2.0);
     if (smoothGlobalBlend > 0.01) {
       ctx.save();
       ctx.globalAlpha = smoothGlobalBlend;
@@ -362,20 +369,22 @@ function renderDrawing(stateNum, pct) {
       ctx.restore();
     }
 
-    // 4. Divine Golden Brush Glow at tip position
-    if (lastPaintPoint) {
+    // 4. Divine Golden Brush Glow & Sparkles at tip position
+    if (lastPaintPoint && isAnimating) {
+      emitBrushSparkle(lastPaintPoint[0], lastPaintPoint[1], true);
+
       ctx.save();
-      ctx.globalAlpha = 0.5 * (1 - paintPct * 0.5);
+      ctx.globalAlpha = 0.6 * (1 - paintPct * 0.4);
       const tipGlow = ctx.createRadialGradient(
         lastPaintPoint[0], lastPaintPoint[1], 2,
-        lastPaintPoint[0], lastPaintPoint[1], 35
+        lastPaintPoint[0], lastPaintPoint[1], 42
       );
-      tipGlow.addColorStop(0, 'rgba(254, 240, 138, 0.9)');
-      tipGlow.addColorStop(0.5, 'rgba(245, 158, 11, 0.5)');
+      tipGlow.addColorStop(0, 'rgba(254, 240, 138, 0.95)');
+      tipGlow.addColorStop(0.4, 'rgba(245, 158, 11, 0.6)');
       tipGlow.addColorStop(1, 'rgba(245, 158, 11, 0)');
       ctx.fillStyle = tipGlow;
       ctx.beginPath();
-      ctx.arc(lastPaintPoint[0], lastPaintPoint[1], 35, 0, Math.PI * 2);
+      ctx.arc(lastPaintPoint[0], lastPaintPoint[1], 42, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -387,6 +396,9 @@ function renderDrawing(stateNum, pct) {
       hideCursor();
     }
   }
+
+  // 5. Draw active floating divine sparkles on top
+  updateBrushSparkles();
 
   // Update Progress Bar
   const roundPct = Math.floor(pct);
