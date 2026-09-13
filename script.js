@@ -48,6 +48,8 @@ imgFinal.src = typeof IMAGE_FINAL_DATA !== 'undefined' ? IMAGE_FINAL_DATA : 'ass
 // Offscreen Canvas for Progressive Brush Masking
 let maskCanvas = document.createElement("canvas");
 let maskCtx = maskCanvas.getContext("2d");
+let tempColorCanvas = document.createElement("canvas");
+let tempColorCtx = tempColorCanvas.getContext("2d");
 
 // Audio Playback Handler
 function startSongPlayback() {
@@ -148,6 +150,8 @@ function initCanvas() {
   fwCanvas.height = 720;
   maskCanvas.width = 480;
   maskCanvas.height = 720;
+  tempColorCanvas.width = 480;
+  tempColorCanvas.height = 720;
   drawPaperBackground();
 }
 
@@ -227,11 +231,11 @@ function renderDrawing(stateNum, pct) {
   // 1. Draw Paper Background
   drawPaperBackground();
 
-  if (pct <= 65) {
+  if (pct <= 60) {
     // ==========================================
-    // STAGE A: REALISTIC PENCIL LINE DRAWING (0% - 65%)
+    // STAGE A: REALISTIC PENCIL LINE DRAWING (0% - 60%)
     // ==========================================
-    const linePct = pct / 65; // 0.0 to 1.0
+    const linePct = pct / 60; // 0.0 to 1.0
     subTitle.innerText = `Stage A: Line Sketching with Pencil... (${Math.floor(pct)}%)`;
 
     ctx.strokeStyle = '#3b2510';
@@ -263,13 +267,14 @@ function renderDrawing(stateNum, pct) {
 
   } else {
     // ==========================================
-    // STAGE B: REALISTIC ARTIST COLOUR PAINTING (65% - 100%)
+    // STAGE B: REALISTIC ARTIST COLOUR PAINTING (60% - 100%)
     // ==========================================
-    const paintPct = (pct - 65) / 35; // 0.0 to 1.0
-    subTitle.innerText = `Stage B: Colour Painting & Golden Lighting... (${Math.floor(pct)}%)`;
+    const paintPct = (pct - 60) / 40; // 0.0 to 1.0
+    subTitle.innerText = `Stage B: Realistic Artist Painting... (${Math.floor(pct)}%)`;
 
-    // 1. Render complete pencil drawing lines on paper
-    ctx.strokeStyle = `rgba(59, 37, 16, ${Math.max(0.15, 0.9 - paintPct * 0.75)})`;
+    // 1. Render complete pencil sketch lines on paper
+    const pencilAlpha = Math.max(0.1, 0.85 - paintPct * 0.75);
+    ctx.strokeStyle = `rgba(59, 37, 16, ${pencilAlpha})`;
     ctx.lineWidth = 1.8;
     ctx.lineCap = 'round';
 
@@ -286,14 +291,15 @@ function renderDrawing(stateNum, pct) {
       }
     }
 
-    // 2. Paint color strokes onto offscreen mask canvas
-    const paintStrokesToDraw = Math.floor(strokes.length * paintPct);
+    // 2. Build organic paint mask on offscreen canvas
+    maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
     maskCtx.fillStyle = '#000000';
     maskCtx.strokeStyle = '#000000';
-    maskCtx.lineWidth = 28 + paintPct * 30; // Expanding brush stroke
+    maskCtx.lineWidth = 32 + paintPct * 18;
     maskCtx.lineCap = 'round';
     maskCtx.lineJoin = 'round';
 
+    const paintStrokesToDraw = Math.floor(strokes.length * paintPct);
     let lastPaintPoint = null;
 
     for (let i = 0; i < paintStrokesToDraw; i++) {
@@ -310,28 +316,69 @@ function renderDrawing(stateNum, pct) {
       }
     }
 
-    // 3. Clip & Render target artwork color image
-    ctx.save();
-    ctx.beginPath();
-    const maxRadius = Math.sqrt(canvas.width**2 + canvas.height**2);
-    ctx.arc(canvas.width / 2, canvas.height / 2, maxRadius * paintPct, 0, Math.PI * 2);
-    ctx.clip();
+    // Add soft watercolor bloom circle at current brush position
+    if (lastPaintPoint) {
+      const radGrad = maskCtx.createRadialGradient(
+        lastPaintPoint[0], lastPaintPoint[1], 0,
+        lastPaintPoint[0], lastPaintPoint[1], 45
+      );
+      radGrad.addColorStop(0, 'rgba(0,0,0,1)');
+      radGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      maskCtx.fillStyle = radGrad;
+      maskCtx.beginPath();
+      maskCtx.arc(lastPaintPoint[0], lastPaintPoint[1], 45, 0, Math.PI * 2);
+      maskCtx.fill();
+    }
 
-    ctx.drawImage(targetImg, 0, 0, canvas.width, canvas.height);
-    ctx.restore();
-
-    // 4. Divine Golden Aura Bloom
-    ctx.save();
-    ctx.globalAlpha = Math.sin(paintPct * Math.PI) * 0.4;
-    const grad = ctx.createRadialGradient(
-      canvas.width / 2, canvas.height / 3, 10,
-      canvas.width / 2, canvas.height / 3, 250
+    // Also add progressive radial fill from center so image gracefully completes
+    const centerRadius = Math.sqrt(canvas.width**2 + canvas.height**2) * 0.8 * paintPct;
+    const centerGrad = maskCtx.createRadialGradient(
+      canvas.width / 2, canvas.height / 2, 0,
+      canvas.width / 2, canvas.height / 2, Math.max(1, centerRadius)
     );
-    grad.addColorStop(0, 'rgba(251, 191, 36, 0.7)');
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
+    centerGrad.addColorStop(0, 'rgba(0,0,0,1)');
+    centerGrad.addColorStop(1, 'rgba(0,0,0,0.2)');
+    maskCtx.fillStyle = centerGrad;
+    maskCtx.beginPath();
+    maskCtx.arc(canvas.width / 2, canvas.height / 2, Math.max(1, centerRadius), 0, Math.PI * 2);
+    maskCtx.fill();
+
+    // 3. Composite targetImg with paint mask
+    tempColorCtx.clearRect(0, 0, tempColorCanvas.width, tempColorCanvas.height);
+    tempColorCtx.drawImage(targetImg, 0, 0, canvas.width, canvas.height);
+    tempColorCtx.globalCompositeOperation = 'destination-in';
+    tempColorCtx.drawImage(maskCanvas, 0, 0);
+    tempColorCtx.globalCompositeOperation = 'source-over';
+
+    // Draw masked paint artwork onto main canvas
+    ctx.drawImage(tempColorCanvas, 0, 0);
+
+    // Smooth global color fade overlay as progress approaches 100%
+    const smoothGlobalBlend = Math.pow(paintPct, 2.2);
+    if (smoothGlobalBlend > 0.01) {
+      ctx.save();
+      ctx.globalAlpha = smoothGlobalBlend;
+      ctx.drawImage(targetImg, 0, 0, canvas.width, canvas.height);
+      ctx.restore();
+    }
+
+    // 4. Divine Golden Brush Glow at tip position
+    if (lastPaintPoint) {
+      ctx.save();
+      ctx.globalAlpha = 0.5 * (1 - paintPct * 0.5);
+      const tipGlow = ctx.createRadialGradient(
+        lastPaintPoint[0], lastPaintPoint[1], 2,
+        lastPaintPoint[0], lastPaintPoint[1], 35
+      );
+      tipGlow.addColorStop(0, 'rgba(254, 240, 138, 0.9)');
+      tipGlow.addColorStop(0.5, 'rgba(245, 158, 11, 0.5)');
+      tipGlow.addColorStop(1, 'rgba(245, 158, 11, 0)');
+      ctx.fillStyle = tipGlow;
+      ctx.beginPath();
+      ctx.arc(lastPaintPoint[0], lastPaintPoint[1], 35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
 
     // Position Paintbrush cursor
     if (isAnimating && lastPaintPoint && paintPct < 0.98) {
