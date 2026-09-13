@@ -231,7 +231,8 @@ function updateBrushSparkles() {
 let sunburstAngle = 0;
 
 function drawPaperBackground() {
-  ctx.fillStyle = '#fef3c7';
+  // Pitch Dark Canvas (Matching Reference Image)
+  ctx.fillStyle = '#050505';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Dynamic Rotating Divine Sunburst Light Rays
@@ -239,7 +240,7 @@ function drawPaperBackground() {
   ctx.save();
   ctx.translate(canvas.width / 2, canvas.height / 2.3);
   ctx.rotate(sunburstAngle);
-  ctx.globalAlpha = 0.08;
+  ctx.globalAlpha = 0.09;
   ctx.fillStyle = '#f59e0b';
   const numRays = 16;
   for (let i = 0; i < numRays; i++) {
@@ -256,9 +257,9 @@ function drawPaperBackground() {
     canvas.width / 2, canvas.height / 2.3, 10,
     canvas.width / 2, canvas.height / 2.3, 290
   );
-  haloGrad.addColorStop(0, 'rgba(254, 240, 138, 0.45)');
-  haloGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.18)');
-  haloGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
+  haloGrad.addColorStop(0, 'rgba(254, 240, 138, 0.35)');
+  haloGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.12)');
+  haloGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = haloGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
@@ -273,13 +274,13 @@ function startState(stateNum) {
 
   if (stateNum === 1) {
     mainTitle.innerText = "✨ First Image (1 of 3)";
-    subTitle.innerText = "Stage A: Pencil Line Sketching (Baby Ganesha & Mouse)";
+    subTitle.innerText = "Stage A: Glowing Fire Sparkler Sketch (Baby Ganesha & Mouse)";
   } else if (stateNum === 2) {
     mainTitle.innerText = "✨ Second Image (2 of 3)";
-    subTitle.innerText = "Stage A: Pencil Line Sketching (Hibiscus Flower Ganesha)";
+    subTitle.innerText = "Stage A: Glowing Fire Sparkler Sketch (Hibiscus Flower Ganesha)";
   } else if (stateNum === 3) {
     mainTitle.innerText = "✨ Third Image (3 of 3)";
-    subTitle.innerText = "Stage A: Pencil Line Sketching (Four-Armed Seated Ganesha)";
+    subTitle.innerText = "Stage A: Glowing Fire Sparkler Sketch (Four-Armed Seated Ganesha)";
   }
 
   if (animFrameId) cancelAnimationFrame(animFrameId);
@@ -323,19 +324,23 @@ function renderDrawing(stateNum, pct) {
     strokes = typeof STROKES_3 !== 'undefined' ? STROKES_3 : [];
   }
 
-  // 1. Paper & Divine Halo Background
+  // 1. Pitch Dark & Divine Halo Background
   drawPaperBackground();
 
   if (pct <= 60) {
     // ==========================================
-    // STAGE A: REALISTIC PENCIL LINE DRAWING (0% - 60%)
+    // STAGE A: GLOWING GOLDEN FIRE SPARKLER SKETCH (0% - 60%)
     // ==========================================
     const linePct = pct / 60; // 0.0 to 1.0
-    subTitle.innerText = `Stage A: Pencil Line Sketching... (${Math.floor(pct)}%)`;
+    subTitle.innerText = `Stage A: Glowing Sparkler Fire Sketch... (${Math.floor(pct)}%)`;
 
-    ctx.strokeStyle = '#3b2510';
-    ctx.lineWidth = 2.0;
+    ctx.save();
+    ctx.strokeStyle = '#fef08a';
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 14;
+    ctx.lineWidth = 2.8;
     ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     const numStrokesToDraw = Math.floor(strokes.length * linePct);
     let lastPoint = null;
@@ -353,10 +358,11 @@ function renderDrawing(stateNum, pct) {
         ctx.stroke();
       }
     }
+    ctx.restore();
 
     if (isAnimating && lastPoint) {
       emitBrushSparkle(lastPoint[0], lastPoint[1], false);
-      positionCursor(lastPoint[0], lastPoint[1], "✍️");
+      positionCursor(lastPoint[0], lastPoint[1], "🪄");
     } else {
       hideCursor();
     }
@@ -366,12 +372,15 @@ function renderDrawing(stateNum, pct) {
     // STAGE B: REALISTIC ARTIST COLOUR PAINTING (60% - 100%)
     // ==========================================
     const paintPct = (pct - 60) / 40; // 0.0 to 1.0
-    subTitle.innerText = `Stage B: Realistic Painting & Divine Glow... (${Math.floor(pct)}%)`;
+    subTitle.innerText = `Stage B: Realistic Painting & Gold Reveal... (${Math.floor(pct)}%)`;
 
-    // 1. Render complete pencil sketch lines on paper
-    const pencilAlpha = Math.max(0.08, 0.85 - paintPct * 0.8);
-    ctx.strokeStyle = `rgba(59, 37, 16, ${pencilAlpha})`;
-    ctx.lineWidth = 1.8;
+    // 1. Render complete glowing gold sketch lines
+    const lineAlpha = Math.max(0.12, 0.95 - paintPct * 0.78);
+    ctx.save();
+    ctx.strokeStyle = `rgba(254, 240, 138, ${lineAlpha})`;
+    ctx.shadowColor = '#f59e0b';
+    ctx.shadowBlur = 10;
+    ctx.lineWidth = 2.4;
     ctx.lineCap = 'round';
 
     for (let i = 0; i < strokes.length; i++) {
@@ -386,6 +395,7 @@ function renderDrawing(stateNum, pct) {
         ctx.stroke();
       }
     }
+    ctx.restore();
 
     // 2. Build organic wet-ink watercolor paint mask on offscreen canvas
     maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
