@@ -216,6 +216,50 @@ function drawPaperBackground() {
   ctx.fillStyle = haloGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
+// State Switcher
+function startState(stateNum) {
+  currentState = stateNum;
+  progress = 0;
+  isAnimating = true;
+  finalCelebration.classList.remove("active");
+
+  maskCtx.clearRect(0, 0, maskCanvas.width, maskCanvas.height);
+
+  if (stateNum === 1) {
+    mainTitle.innerText = "✨ First Image (1 of 3)";
+    subTitle.innerText = "Stage A: Pencil Line Sketching (Baby Ganesha & Mouse)";
+  } else if (stateNum === 2) {
+    mainTitle.innerText = "✨ Second Image (2 of 3)";
+    subTitle.innerText = "Stage A: Pencil Line Sketching (Hibiscus Flower Ganesha)";
+  } else if (stateNum === 3) {
+    mainTitle.innerText = "✨ Third Image (3 of 3)";
+    subTitle.innerText = "Stage A: Pencil Line Sketching (Four-Armed Seated Ganesha)";
+  }
+
+  if (animFrameId) cancelAnimationFrame(animFrameId);
+  renderLoop();
+}
+
+// Render Animation Loop
+function renderLoop() {
+  if (currentState >= 1 && currentState <= 3) {
+    if (isAnimating) {
+      progress += BASE_STEP * speedMultiplier;
+      if (progress >= 100) {
+        progress = 100;
+        isAnimating = false;
+        renderDrawing(currentState, 100);
+        onDrawingStageComplete();
+        return;
+      }
+    }
+    renderDrawing(currentState, progress);
+  } else if (currentState === 4) {
+    updateFireworks();
+  }
+
+  animFrameId = requestAnimationFrame(renderLoop);
+}
 
 // Render Drawing Engine
 function renderDrawing(stateNum, pct) {
