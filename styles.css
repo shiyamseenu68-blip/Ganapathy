@@ -17,17 +17,26 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+button, .btn-start, .btn-skip, .btn-secondary {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  cursor: pointer;
+}
+
 body {
-  font-family: 'Poppins', system-ui, sans-serif;
-  background-color: var(--dark-bg);
-  color: #f4f4f5;
+  font-family: 'Poppins', sans-serif;
+  background-color: var(--bg-dark);
+  color: #fff;
+  margin: 0;
+  padding: 0;
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow-x: hidden;
-  padding: 12px;
+  position: relative;
+  touch-action: manipulation;
 }
 
 /* Background Atmosphere Glow */

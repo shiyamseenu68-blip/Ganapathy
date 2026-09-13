@@ -462,9 +462,32 @@ function triggerFinalWishesAndFireworks() {
   }
 }
 
-// Skip Button Listener (Instantly Jump to Next Stage)
+// Universal Touch & Click Event Listener Helper
+function attachTouchAndClick(element, callback) {
+  if (!element) return;
+  let handled = false;
+  element.addEventListener("pointerdown", (e) => {
+    callback(e);
+    handled = true;
+    setTimeout(() => { handled = false; }, 350);
+  });
+  element.addEventListener("click", (e) => {
+    if (!handled) callback(e);
+  });
+}
+
+// Start Button Handler
+if (startBtn) {
+  attachTouchAndClick(startBtn, (e) => {
+    startSongPlayback();
+    startOverlay.classList.add("hidden-overlay");
+    startState(1);
+  });
+}
+
+// Skip Button Handler
 if (skipBtn) {
-  skipBtn.addEventListener("click", () => {
+  attachTouchAndClick(skipBtn, (e) => {
     if (currentState >= 1 && currentState <= 3) {
       progress = 100;
       isAnimating = false;
@@ -474,9 +497,9 @@ if (skipBtn) {
   });
 }
 
-// Speed Toggle Listener (1x -> 3x -> 8x -> 1x)
+// Speed Toggle Handler
 if (speedBtn) {
-  speedBtn.addEventListener("click", () => {
+  attachTouchAndClick(speedBtn, (e) => {
     if (speedMultiplier === 1) speedMultiplier = 3;
     else if (speedMultiplier === 3) speedMultiplier = 8;
     else speedMultiplier = 1;
@@ -484,44 +507,58 @@ if (speedBtn) {
   });
 }
 
-// Interactive Firework Launch on Click
-fwCanvas.addEventListener("click", (e) => {
-  if (currentState === 4) {
-    const rect = fwCanvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) * (fwCanvas.width / rect.width);
-    const y = (e.clientY - rect.top) * (fwCanvas.height / rect.height);
-    launchFirework(x, y);
-  }
-});
-
-// Replay Button Listener
-replayBtn.addEventListener("click", () => {
-  if (bgAudio) {
-    bgAudio.currentTime = 0;
-    bgAudio.play();
-  }
-  startOverlay.classList.remove("hidden-overlay");
-  currentState = 0;
-  progress = 0;
-  isAnimating = false;
-  finalCelebration.classList.remove("active");
-  hideCursor();
-  drawPaperBackground();
-  mainTitle.innerText = "✨ Lord Ganesha Festival Art Reveal";
-  subTitle.innerText = "Click Start to Begin the Slow Divine Drawing Journey";
-  progressFill.style.width = "0%";
-  progressPct.innerText = "0%";
-});
-
-// Song Toggle Listener
-soundToggle.addEventListener("click", () => {
-  if (bgAudio) {
-    if (bgAudio.paused) {
+// Replay Button Handler
+if (replayBtn) {
+  attachTouchAndClick(replayBtn, (e) => {
+    if (bgAudio) {
+      bgAudio.currentTime = 0;
       bgAudio.play();
-      soundToggle.innerText = "🎵 Song: ON";
-    } else {
-      bgAudio.pause();
-      soundToggle.innerText = "🔇 Song: OFF";
+    }
+    startOverlay.classList.remove("hidden-overlay");
+    currentState = 0;
+    progress = 0;
+    isAnimating = false;
+    finalCelebration.classList.remove("active");
+    hideCursor();
+    drawPaperBackground();
+    mainTitle.innerText = "✨ Lord Ganesha Festival Art Reveal";
+    subTitle.innerText = "Click Start to Begin the Slow Divine Drawing Journey";
+    progressFill.style.width = "0%";
+    progressPct.innerText = "0%";
+  });
+}
+
+// Song Toggle Handler
+if (soundToggle) {
+  attachTouchAndClick(soundToggle, (e) => {
+    if (bgAudio) {
+      if (bgAudio.paused) {
+        bgAudio.play();
+        soundToggle.innerText = "🎵 Song: ON";
+      } else {
+        bgAudio.pause();
+        soundToggle.innerText = "🔇 Song: OFF";
+      }
+    }
+  });
+}
+
+// Interactive Firework Launch on Click & Touch (Final Stage)
+function handleCanvasTouchOrClick(e) {
+  if (currentState === 4) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : (e.clientX || e.pageX);
+    const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : (e.clientY || e.pageY);
+    if (clientX !== undefined && clientY !== undefined) {
+      const x = (clientX - rect.left) * (canvas.width / rect.width);
+      const y = (clientY - rect.top) * (canvas.height / rect.height);
+      launchFirework(x, y);
     }
   }
-});
+}
+
+const canvasViewport = document.querySelector(".canvas-wrapper");
+if (canvasViewport) {
+  canvasViewport.addEventListener("pointerdown", handleCanvasTouchOrClick);
+  canvasViewport.addEventListener("click", handleCanvasTouchOrClick);
+}
