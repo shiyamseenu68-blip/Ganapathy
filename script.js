@@ -230,17 +230,36 @@ function updateBrushSparkles() {
   }
 }
 
+let sunburstAngle = 0;
+
 function drawPaperBackground() {
   ctx.fillStyle = '#fef3c7';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Subtle Divine Ambient Halo
+  // Dynamic Rotating Divine Sunburst Light Rays
+  sunburstAngle += 0.003;
+  ctx.save();
+  ctx.translate(canvas.width / 2, canvas.height / 2.3);
+  ctx.rotate(sunburstAngle);
+  ctx.globalAlpha = 0.08;
+  ctx.fillStyle = '#f59e0b';
+  const numRays = 16;
+  for (let i = 0; i < numRays; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, 480, (i * 2 * Math.PI) / numRays, ((i * 2 + 1) * Math.PI) / numRays);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Divine Glowing Halo Core
   const haloGrad = ctx.createRadialGradient(
-    canvas.width / 2, canvas.height / 2.2, 10,
-    canvas.width / 2, canvas.height / 2.2, 280
+    canvas.width / 2, canvas.height / 2.3, 10,
+    canvas.width / 2, canvas.height / 2.3, 290
   );
-  haloGrad.addColorStop(0, 'rgba(254, 240, 138, 0.35)');
-  haloGrad.addColorStop(0.6, 'rgba(245, 158, 11, 0.1)');
+  haloGrad.addColorStop(0, 'rgba(254, 240, 138, 0.45)');
+  haloGrad.addColorStop(0.5, 'rgba(245, 158, 11, 0.18)');
   haloGrad.addColorStop(1, 'rgba(245, 158, 11, 0)');
   ctx.fillStyle = haloGrad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);

@@ -90,6 +90,31 @@ body {
   }
 }
 
+/* Corner Flickering Diyas */
+.diya-corner {
+  position: absolute;
+  z-index: 20;
+  font-size: 1.8rem;
+  pointer-events: none;
+  filter: drop-shadow(0 0 12px #f59e0b) drop-shadow(0 0 25px #fbbf24);
+  animation: diyaFlameFlicker 2.2s infinite ease-in-out;
+}
+.diya-tl { top: -14px; left: -14px; }
+.diya-tr { top: -14px; right: -14px; }
+.diya-bl { bottom: -14px; left: -14px; }
+.diya-br { bottom: -14px; right: -14px; }
+
+@keyframes diyaFlameFlicker {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 12px #f59e0b) drop-shadow(0 0 25px #fbbf24);
+  }
+  50% {
+    transform: scale(1.18) rotate(5deg);
+    filter: drop-shadow(0 0 24px #fef08a) drop-shadow(0 0 45px #f59e0b);
+  }
+}
+
 /* Header Typography */
 .main-title {
   font-family: 'Cinzel', serif;
