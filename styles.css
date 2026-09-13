@@ -180,35 +180,37 @@ body {
 /* Floating Side Controls Overlay */
 .side-controls {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 14px;
+  right: 14px;
   z-index: 35;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .btn-skip {
-  background: rgba(9, 9, 11, 0.85);
+  background: linear-gradient(135deg, rgba(24, 24, 27, 0.9) 0%, rgba(9, 9, 11, 0.95) 100%);
   color: #fbbf24;
-  border: 1px solid var(--border-gold);
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-size: 0.78rem;
+  border: 1.5px solid rgba(245, 158, 11, 0.6);
+  padding: 9px 16px;
+  border-radius: 14px;
+  font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
-  backdrop-filter: blur(8px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  transition: all 0.2s ease;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.6), inset 0 1px 1px rgba(254, 240, 138, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .btn-skip:hover {
-  background: rgba(245, 158, 11, 0.25);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3) 0%, rgba(217, 119, 6, 0.4) 100%);
   color: #fff;
-  transform: scale(1.05);
+  border-color: rgba(254, 240, 138, 0.9);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 24px rgba(245, 158, 11, 0.5);
 }
 
 /* Start Overlay Screen */
@@ -216,56 +218,58 @@ body {
   position: absolute;
   inset: 0;
   z-index: 50;
-  background: linear-gradient(180deg, rgba(9, 9, 11, 0.96) 0%, rgba(24, 24, 27, 0.98) 100%);
+  background: radial-gradient(circle at 50% 40%, rgba(24, 24, 27, 0.96) 0%, rgba(9, 9, 11, 0.99) 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 28px;
   text-align: center;
-  gap: 16px;
+  gap: 18px;
   border-radius: 16px;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  backdrop-filter: blur(20px);
 }
 
 #startOverlay.hidden-overlay {
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.95);
+  transform: scale(0.94);
 }
 
-/* Glowing Start Button */
+/* 8K Ultra-Glowing Start Button */
 .btn-start {
-  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+  background: linear-gradient(135deg, #fef08a 0%, #f59e0b 45%, #d97706 80%, #b45309 100%);
   color: #09090b;
   font-family: 'Cinzel', serif;
   font-weight: 900;
-  font-size: 1.1rem;
-  padding: 16px 36px;
-  border-radius: 16px;
-  border: none;
+  font-size: 1.15rem;
+  padding: 18px 42px;
+  border-radius: 18px;
+  border: 1px solid rgba(254, 240, 138, 0.8);
   cursor: pointer;
-  box-shadow: 0 0 30px rgba(245, 158, 11, 0.8), 0 10px 20px rgba(0, 0, 0, 0.6);
-  animation: startPulse 2s infinite ease-in-out;
+  box-shadow: 0 0 35px rgba(245, 158, 11, 0.85), 0 12px 28px rgba(0, 0, 0, 0.7);
+  animation: startPulse 2.2s infinite ease-in-out;
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  transition: transform 0.2s ease;
+  gap: 12px;
+  transition: all 0.3s ease;
+  letter-spacing: 0.05em;
 }
 
 .btn-start:hover {
-  transform: scale(1.06);
-  box-shadow: 0 0 45px rgba(254, 240, 138, 1), 0 15px 30px rgba(0, 0, 0, 0.8);
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 0 55px rgba(254, 240, 138, 1), 0 18px 36px rgba(0, 0, 0, 0.85);
 }
 
 @keyframes startPulse {
   0%, 100% {
     transform: scale(1);
-    box-shadow: 0 0 25px rgba(245, 158, 11, 0.7);
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.75);
   }
   50% {
     transform: scale(1.04);
-    box-shadow: 0 0 45px rgba(251, 191, 36, 1);
+    box-shadow: 0 0 55px rgba(251, 191, 36, 1);
   }
 }
 
@@ -278,7 +282,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  padding-bottom: 38px;
+  padding-bottom: 40px;
   background-size: cover;
   background-position: center;
   opacity: 0;
@@ -295,26 +299,26 @@ body {
 /* English Text: HAPPY VINAYAGAR CHATURTHI */
 .chaturthi-text-en {
   font-family: 'Cinzel', serif;
-  font-size: 1.95rem;
+  font-size: 2.1rem;
   font-weight: 900;
   text-align: center;
   color: #fef08a;
-  text-shadow: 0 0 12px #f59e0b, 0 0 28px #fbbf24, 0 0 50px #d97706, 0 4px 10px rgba(0,0,0,0.95);
-  letter-spacing: 0.06em;
+  text-shadow: 0 0 16px #f59e0b, 0 0 32px #fbbf24, 0 0 55px #d97706, 0 4px 12px rgba(0,0,0,0.98);
+  letter-spacing: 0.07em;
   animation: goldTextGlow 2.5s infinite ease-in-out;
-  padding: 0 12px;
+  padding: 0 14px;
 }
 
 /* Tamil Text: நல்ல வாழ்த்துகள் */
 .chaturthi-text-ta {
   font-family: 'Noto Sans Tamil', 'Latha', 'Tamil Sangam MN', sans-serif, system-ui;
-  font-size: 1.65rem;
+  font-size: 1.75rem;
   font-weight: 900;
   text-align: center;
   color: #ffffff;
-  text-shadow: 0 0 12px #fbbf24, 0 0 28px #f59e0b, 0 4px 8px rgba(0,0,0,0.9);
+  text-shadow: 0 0 16px #fbbf24, 0 0 32px #f59e0b, 0 4px 10px rgba(0,0,0,0.95);
   margin-top: 6px;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   animation: goldTextGlow 2.5s infinite ease-in-out 0.5s;
 }
 

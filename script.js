@@ -63,8 +63,37 @@ function startSongPlayback() {
   }
 }
 
-// Web Audio API Synthesizer for Fireworks pops
+// Web Audio API Synthesizer for Fireworks pops & Divine Temple Bell Chime
 let audioCtx = null;
+
+function playTempleBellSound() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 brass bell note
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(1760, audioCtx.currentTime); // Metallic overtone
+
+    gain.gain.setValueAtTime(0.22, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 1.8);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    osc1.start();
+    osc2.start();
+    osc1.stop(audioCtx.currentTime + 1.8);
+    osc2.stop(audioCtx.currentTime + 1.8);
+  } catch (e) {}
+}
+
 function playFireworkSound() {
   try {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -523,6 +552,7 @@ function attachTouchAndClick(element, callback) {
 // Start Button Handler
 if (startBtn) {
   attachTouchAndClick(startBtn, (e) => {
+    playTempleBellSound();
     startSongPlayback();
     startOverlay.classList.add("hidden-overlay");
     startState(1);
