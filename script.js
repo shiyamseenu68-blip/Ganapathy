@@ -121,26 +121,46 @@ let animFrameId = null;
 let speedMultiplier = 1; // 1x, 3x, 8x
 const BASE_STEP = 0.008; // Ultra-slow pacing (~120s per drawing total)
 
-// Fireworks Particles Engine
+// Fireworks & Golden Petal Confetti Engine
 let fwParticles = [];
+let fallingPetals = [];
 
 function launchFirework(x, y) {
-  const colors = ['#f59e0b', '#fbbf24', '#ef4444', '#ec4899', '#3b82f6', '#10b981', '#fef08a'];
+  const colors = ['#f59e0b', '#fbbf24', '#ef4444', '#ec4899', '#3b82f6', '#10b981', '#fef08a', '#ffffff', '#8b5cf6'];
   const baseColor = colors[Math.floor(Math.random() * colors.length)];
   playFireworkSound();
 
-  for (let i = 0; i < 55; i++) {
+  const burstX = x || Math.random() * (fwCanvas.width - 100) + 50;
+  const burstY = y || Math.random() * (fwCanvas.height / 2.2) + 50;
+
+  for (let i = 0; i < 75; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 7.5 + 2;
+    const speed = Math.random() * 8.5 + 2.5;
     fwParticles.push({
-      x: x || Math.random() * (fwCanvas.width - 80) + 40,
-      y: y || Math.random() * (fwCanvas.height / 2) + 40,
+      x: burstX,
+      y: burstY,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
       color: baseColor,
       alpha: 1,
-      decay: Math.random() * 0.022 + 0.012,
-      size: Math.random() * 3.5 + 2
+      decay: Math.random() * 0.02 + 0.01,
+      size: Math.random() * 4.0 + 2.0
+    });
+  }
+
+  // Add falling gold flower petals / confetti
+  for (let i = 0; i < 6; i++) {
+    fallingPetals.push({
+      x: burstX + (Math.random() * 40 - 20),
+      y: burstY,
+      vx: (Math.random() - 0.5) * 2,
+      vy: Math.random() * 2 + 1,
+      rot: Math.random() * Math.PI * 2,
+      vRot: (Math.random() - 0.5) * 0.1,
+      color: Math.random() > 0.5 ? '#fbbf24' : '#fef08a',
+      alpha: 1,
+      decay: 0.006,
+      size: Math.random() * 6 + 4
     });
   }
 }
@@ -148,13 +168,15 @@ function launchFirework(x, y) {
 function updateFireworks() {
   fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
   if (currentState === 4) {
-    if (Math.random() < 0.14) {
+    if (Math.random() < 0.18) {
       launchFirework();
     }
+
+    // Render Fireworks Particles
     for (let i = fwParticles.length - 1; i >= 0; i--) {
       const p = fwParticles[i];
       p.x += p.vx;
-      p.y += p.vy + 0.18; // gravity
+      p.y += p.vy + 0.16; // gravity
       p.alpha -= p.decay;
       if (p.alpha <= 0) {
         fwParticles.splice(i, 1);
@@ -162,9 +184,34 @@ function updateFireworks() {
         fwCtx.save();
         fwCtx.globalAlpha = p.alpha;
         fwCtx.fillStyle = p.color;
+        fwCtx.shadowColor = p.color;
+        fwCtx.shadowBlur = 10;
         fwCtx.beginPath();
         fwCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         fwCtx.fill();
+        fwCtx.restore();
+      }
+    }
+
+    // Render Falling Gold Petals / Confetti
+    for (let i = fallingPetals.length - 1; i >= 0; i--) {
+      const petal = fallingPetals[i];
+      petal.x += petal.vx;
+      petal.y += petal.vy;
+      petal.rot += petal.vRot;
+      petal.alpha -= petal.decay;
+
+      if (petal.alpha <= 0 || petal.y > fwCanvas.height) {
+        fallingPetals.splice(i, 1);
+      } else {
+        fwCtx.save();
+        fwCtx.globalAlpha = petal.alpha;
+        fwCtx.translate(petal.x, petal.y);
+        fwCtx.rotate(petal.rot);
+        fwCtx.fillStyle = petal.color;
+        fwCtx.shadowColor = petal.color;
+        fwCtx.shadowBlur = 6;
+        fwCtx.fillRect(-petal.size / 2, -petal.size / 4, petal.size, petal.size / 2);
         fwCtx.restore();
       }
     }
@@ -551,14 +598,15 @@ function onDrawingStageComplete() {
 function triggerFinalWishesAndFireworks() {
   currentState = 4;
   hideCursor();
+  playTempleBellSound();
   mainTitle.innerText = "🎆 Vinayagar Chaturthi Celebration";
   subTitle.innerText = "HAPPY VINAYAGAR CHATURTHI - நல்ல வாழ்த்துகள்";
 
   finalCelebration.style.backgroundImage = `url('${imgFinal.src}')`;
   finalCelebration.classList.add("active");
 
-  for (let i = 0; i < 6; i++) {
-    setTimeout(() => launchFirework(), i * 250);
+  for (let i = 0; i < 12; i++) {
+    setTimeout(() => launchFirework(), i * 200);
   }
 }
 
@@ -598,11 +646,12 @@ if (skipBtn) {
   });
 }
 
-// Speed Toggle Handler
+// Speed Toggle Handler (1x -> 3x -> 8x -> 15x -> 1x)
 if (speedBtn) {
   attachTouchAndClick(speedBtn, (e) => {
     if (speedMultiplier === 1) speedMultiplier = 3;
     else if (speedMultiplier === 3) speedMultiplier = 8;
+    else if (speedMultiplier === 8) speedMultiplier = 15;
     else speedMultiplier = 1;
     speedBtn.innerText = `⚡ ${speedMultiplier}x Speed`;
   });
