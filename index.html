@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lord Ganapathy Chaturthi Hand-Drawing Reveal & Devotional Celebration</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Background Divine Glow -->
+  <div class="bg-glow"></div>
+
+  <!-- Main App Card -->
+  <div class="app-card">
+    
+    <!-- Title Header -->
+    <h1 id="mainTitle" class="main-title">✨ Lord Ganesha Festival Art Reveal</h1>
+    <p id="subTitle" class="sub-title">Click Start to Begin the Slow Divine Drawing Journey</p>
+
+    <!-- Canvas Viewport Wrapper -->
+    <div class="canvas-wrapper">
+      
+      <!-- Side Controls (Skip & Speed Multiplier) -->
+      <div class="side-controls">
+        <button id="skipBtn" class="btn-skip" title="Skip current drawing stage">
+          <span>⏩ Skip</span>
+        </button>
+        <button id="speedBtn" class="btn-skip" title="Toggle drawing speed">
+          <span>⚡ 1x Speed</span>
+        </button>
+      </div>
+
+      <!-- Start Screen Overlay -->
+      <div id="startOverlay">
+        <span style="font-size: 3.5rem;">🪔</span>
+        <h2 style="font-family: 'Cinzel', serif; font-size: 1.5rem; color: #fbbf24; font-weight: 900;">Ganapathy Hand-Drawing & Devotional Song</h2>
+        <p style="font-size: 0.85rem; color: #d4d4d8; max-width: 380px;">Watch a real artist slowly sketch Lord Ganesha stroke by stroke with your devotional song playing!</p>
+        <button id="startBtn" class="btn-start">
+          <span>▶️ START DRAWING EXPERIENCE</span>
+        </button>
+      </div>
+
+      <!-- Main Drawing Canvas -->
+      <canvas id="drawingCanvas"></canvas>
+
+      <!-- Animated Pencil Tip Cursor -->
+      <div id="pencilCursor">✍️</div>
+
+      <!-- Fireworks Particle Canvas Overlay -->
+      <canvas id="fireworksCanvas"></canvas>
+
+      <!-- Final Celebration Scene Overlay with Exact Wishes -->
+      <div id="finalCelebration">
+        <h1 class="chaturthi-text-en">HAPPY VINAYAGAR CHATURTHI</h1>
+        <h2 class="chaturthi-text-ta">நல்ல வாழ்த்துகள்</h2>
+        <p class="created-by-text">✨ Created by Shiyam ✨</p>
+      </div>
+
+    </div>
+
+    <!-- Progress Track Bar -->
+    <div class="progress-container">
+      <div style="display: flex; justify-content: space-between; font-size: 0.8rem; color: #a1a1aa; font-weight: 600; margin-bottom: 6px;">
+        <span>Drawing Progress</span>
+        <span id="progressPct" style="color: #fbbf24;">0%</span>
+      </div>
+      <div class="progress-track">
+        <div id="progressFill" class="progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Controls Footer -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px; gap: 10px;">
+      <button id="replayBtn" class="btn-secondary">
+        🔄 Replay Experience
+      </button>
+      <button id="soundToggle" class="btn-secondary">
+        🎵 Song: ON
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Background Devotional Audio Track -->
+  <audio id="bgAudio" loop preload="auto">
+    <source src="assets/background_music.mp3" type="audio/mpeg">
+    <source src="https://videotourl.com/audio/1789306599295-2737a983-59f2-473e-b238-2452b12d2272.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Load Base64 Embedded Assets First -->
+  <script src="assets.js"></script>
+  <!-- Load Extracted Contour Stroke Paths -->
+  <script src="strokes.js"></script>
+  <!-- Load Main Interactive Logic -->
+  <script src="script.js"></script>
+</body>
+</html>
