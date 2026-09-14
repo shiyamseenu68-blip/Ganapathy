@@ -69,17 +69,11 @@ function startSongPlayback() {
 
 // Instant Mobile Tap Audio Unlocker
 function unlockMobileAudioOnFirstTap() {
-  startSongPlayback();
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioCtx && audioCtx.state === 'suspended') {
-    audioCtx.resume();
-  }
+  playAudioSynchronously();
 }
 
-document.addEventListener("pointerdown", unlockMobileAudioOnFirstTap, { once: true });
-document.addEventListener("touchstart", unlockMobileAudioOnFirstTap, { once: true });
+document.addEventListener("touchend", unlockMobileAudioOnFirstTap, { once: true });
+document.addEventListener("click", unlockMobileAudioOnFirstTap, { once: true });
 
 // Web Audio API Synthesizer for Fireworks pops & Divine Temple Bell Chime
 let audioCtx = null;
@@ -636,25 +630,48 @@ function triggerFinalWishesAndFireworks() {
   }
 }
 
-// Universal Touch & Click Event Listener Helper
+// Synchronous Mobile Audio Playback
+function playAudioSynchronously() {
+  if (bgAudio) {
+    if (!bgAudio.src || !bgAudio.src.includes("videotourl")) {
+      bgAudio.src = AUDIO_URL;
+    }
+    bgAudio.volume = 1.0;
+    const p = bgAudio.play();
+    if (p !== undefined) {
+      p.then(() => {
+        soundToggle.innerText = "🎵 Song: ON";
+      }).catch(err => {
+        console.log("Audio play gesture catch:", err);
+      });
+    }
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+// Universal Mobile Touch & Click Event Helper
 function attachTouchAndClick(element, callback) {
   if (!element) return;
-  let handled = false;
-  element.addEventListener("pointerdown", (e) => {
+  let lastTouchTime = 0;
+
+  element.addEventListener("touchend", (e) => {
+    lastTouchTime = Date.now();
     callback(e);
-    handled = true;
-    setTimeout(() => { handled = false; }, 350);
-  });
+  }, { passive: true });
+
   element.addEventListener("click", (e) => {
-    if (!handled) callback(e);
+    if (Date.now() - lastTouchTime < 400) return; // Prevent double trigger from touchend
+    callback(e);
   });
 }
 
 // Start Button Handler
 if (startBtn) {
   attachTouchAndClick(startBtn, (e) => {
+    playAudioSynchronously();
     playTempleBellSound();
-    startSongPlayback();
     startOverlay.classList.add("hidden-overlay");
     startState(1);
   });
