@@ -39,34 +39,36 @@ body {
   touch-action: manipulation;
 }
 
-/* Side Screen Animated Light Bars */
+/* Side Screen Animated Light Bars - Mobile GPU Accelerated */
 .side-light-bar {
   position: fixed;
   top: 0;
   bottom: 0;
-  width: 8px;
+  width: 6px;
   z-index: 5;
   pointer-events: none;
   background: linear-gradient(180deg, #f59e0b, #ef4444, #ec4899, #8b5cf6, #3b82f6, #10b981, #fef08a, #f59e0b);
   background-size: 100% 300%;
   animation: sideLightBeam 5s linear infinite;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.9), 0 0 45px rgba(236, 72, 153, 0.75);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.8), 0 0 30px rgba(236, 72, 153, 0.6);
   border-radius: 999px;
+  will-change: transform, background-position;
 }
-.side-light-left { left: 10px; }
-.side-light-right { right: 10px; }
+.side-light-left { left: 6px; }
+.side-light-right { right: 6px; }
 
 @keyframes sideLightBeam {
   0% {
     background-position: 0% 0%;
-    filter: hue-rotate(0deg) drop-shadow(0 0 20px #f59e0b);
+    opacity: 0.85;
   }
   50% {
-    filter: hue-rotate(180deg) drop-shadow(0 0 35px #ec4899);
+    background-position: 0% 150%;
+    opacity: 1;
   }
   100% {
     background-position: 0% 300%;
-    filter: hue-rotate(360deg) drop-shadow(0 0 20px #f59e0b);
+    opacity: 0.85;
   }
 }
 
@@ -75,19 +77,11 @@ body {
   position: fixed;
   inset: 0;
   background: 
-    radial-gradient(circle at 50% 35%, rgba(245, 158, 11, 0.32) 0%, rgba(9, 9, 11, 0.98) 75%),
-    radial-gradient(circle at 15% 85%, rgba(236, 72, 153, 0.28) 0%, transparent 55%),
-    radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.28) 0%, transparent 55%);
+    radial-gradient(circle at 50% 35%, rgba(245, 158, 11, 0.28) 0%, rgba(9, 9, 11, 0.98) 75%),
+    radial-gradient(circle at 15% 85%, rgba(236, 72, 153, 0.22) 0%, transparent 55%),
+    radial-gradient(circle at 85% 85%, rgba(59, 130, 246, 0.22) 0%, transparent 55%);
   pointer-events: none;
   z-index: 0;
-  animation: allColorSpectrumPulse 7s infinite ease-in-out;
-}
-
-@keyframes allColorSpectrumPulse {
-  0% { filter: hue-rotate(0deg) brightness(1.0); }
-  33% { filter: hue-rotate(120deg) brightness(1.2); }
-  66% { filter: hue-rotate(240deg) brightness(1.15); }
-  100% { filter: hue-rotate(360deg) brightness(1.0); }
 }
 
 /* Main Container Card with Glowing All-Colors Black-Light Aura */

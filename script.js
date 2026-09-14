@@ -184,8 +184,6 @@ function updateFireworks() {
         fwCtx.save();
         fwCtx.globalAlpha = p.alpha;
         fwCtx.fillStyle = p.color;
-        fwCtx.shadowColor = p.color;
-        fwCtx.shadowBlur = 10;
         fwCtx.beginPath();
         fwCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         fwCtx.fill();
@@ -209,8 +207,6 @@ function updateFireworks() {
         fwCtx.translate(petal.x, petal.y);
         fwCtx.rotate(petal.rot);
         fwCtx.fillStyle = petal.color;
-        fwCtx.shadowColor = petal.color;
-        fwCtx.shadowBlur = 6;
         fwCtx.fillRect(-petal.size / 2, -petal.size / 4, petal.size, petal.size / 2);
         fwCtx.restore();
       }
@@ -237,18 +233,19 @@ let cursorTargetX = 240, cursorTargetY = 360;
 let currentCursorX = 240, currentCursorY = 360;
 
 function emitBrushSparkle(x, y, isColorStage) {
-  const count = isColorStage ? 3 : 1;
+  if (strokeParticles.length > 35) strokeParticles.shift();
+  const count = isColorStage ? 2 : 1;
   const allColors = ['#fef08a', '#f59e0b', '#ef4444', '#ec4899', '#8b5cf6', '#3b82f6', '#10b981', '#ffffff'];
   for (let i = 0; i < count; i++) {
     strokeParticles.push({
-      x: x + (Math.random() * 20 - 10),
-      y: y + (Math.random() * 20 - 10),
-      vx: (Math.random() - 0.5) * 2.5,
-      vy: -Math.random() * 2.8 - 0.6,
-      size: Math.random() * (isColorStage ? 5.0 : 3.0) + 1.5,
+      x: x + (Math.random() * 16 - 8),
+      y: y + (Math.random() * 16 - 8),
+      vx: (Math.random() - 0.5) * 2.2,
+      vy: -Math.random() * 2.5 - 0.5,
+      size: Math.random() * (isColorStage ? 4.5 : 2.5) + 1.2,
       color: allColors[Math.floor(Math.random() * allColors.length)],
       alpha: 1,
-      decay: Math.random() * 0.03 + 0.015
+      decay: Math.random() * 0.035 + 0.02
     });
   }
 }
@@ -265,8 +262,6 @@ function updateBrushSparkles() {
       ctx.save();
       ctx.globalAlpha = p.alpha;
       ctx.fillStyle = p.color;
-      ctx.shadowColor = p.color;
-      ctx.shadowBlur = 8;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
       ctx.fill();
@@ -376,21 +371,20 @@ function renderDrawing(stateNum, pct) {
 
   if (pct <= 60) {
     // ==========================================
-    // STAGE A: GLOWING GOLDEN FIRE SPARKLER SKETCH (0% - 60%)
+    // STAGE A: GLOWING GOLDEN FIRE SPARKLER SKETCH (0% - 60%) - 60 FPS Mobile Optimized
     // ==========================================
     const linePct = pct / 60; // 0.0 to 1.0
     subTitle.innerText = `Stage A: Glowing Sparkler Fire Sketch... (${Math.floor(pct)}%)`;
 
-    ctx.save();
-    ctx.strokeStyle = '#fef08a';
-    ctx.shadowColor = '#f59e0b';
-    ctx.shadowBlur = 14;
-    ctx.lineWidth = 2.8;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
     const numStrokesToDraw = Math.floor(strokes.length * linePct);
     let lastPoint = null;
+
+    // Pass 1: Outer Warm Glow Line
+    ctx.save();
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.45)';
+    ctx.lineWidth = 5.5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
     for (let i = 0; i < numStrokesToDraw; i++) {
       const stroke = strokes[i];
@@ -401,6 +395,22 @@ function renderDrawing(stateNum, pct) {
           if (j === 0) ctx.moveTo(pt[0], pt[1]);
           else ctx.lineTo(pt[0], pt[1]);
           lastPoint = pt;
+        }
+        ctx.stroke();
+      }
+    }
+
+    // Pass 2: Bright Golden Core Line
+    ctx.strokeStyle = '#fef08a';
+    ctx.lineWidth = 2.2;
+    for (let i = 0; i < numStrokesToDraw; i++) {
+      const stroke = strokes[i];
+      if (stroke && stroke.length > 0) {
+        ctx.beginPath();
+        for (let j = 0; j < stroke.length; j++) {
+          const pt = stroke[j];
+          if (j === 0) ctx.moveTo(pt[0], pt[1]);
+          else ctx.lineTo(pt[0], pt[1]);
         }
         ctx.stroke();
       }
@@ -416,18 +426,16 @@ function renderDrawing(stateNum, pct) {
 
   } else {
     // ==========================================
-    // STAGE B: REALISTIC ARTIST COLOUR PAINTING (60% - 100%)
+    // STAGE B: REALISTIC ARTIST COLOUR PAINTING (60% - 100%) - 60 FPS Mobile Optimized
     // ==========================================
     const paintPct = (pct - 60) / 40; // 0.0 to 1.0
     subTitle.innerText = `Stage B: Realistic Painting & Gold Reveal... (${Math.floor(pct)}%)`;
 
-    // 1. Render complete glowing gold sketch lines
+    // 1. Render complete glowing gold sketch lines (Fast Dual Pass)
     const lineAlpha = Math.max(0.12, 0.95 - paintPct * 0.78);
     ctx.save();
     ctx.strokeStyle = `rgba(254, 240, 138, ${lineAlpha})`;
-    ctx.shadowColor = '#f59e0b';
-    ctx.shadowBlur = 10;
-    ctx.lineWidth = 2.4;
+    ctx.lineWidth = 2.2;
     ctx.lineCap = 'round';
 
     for (let i = 0; i < strokes.length; i++) {
