@@ -51,40 +51,24 @@ let maskCtx = maskCanvas.getContext("2d");
 let tempColorCanvas = document.createElement("canvas");
 let tempColorCtx = tempColorCanvas.getContext("2d");
 
-// Bulletproof Mobile Audio Unlocking & CDN Fallback Engine
-const REMOTE_AUDIO_URL = "https://videotourl.com/audio/1789306599295-2737a983-59f2-473e-b238-2452b12d2272.mp3";
-let isAudioUnlocked = false;
+// Automatic Devotional Song Playback Engine
+const AUDIO_URL = "https://videotourl.com/audio/1789306599295-2737a983-59f2-473e-b238-2452b12d2272.mp3";
 
 function startSongPlayback() {
   if (!bgAudio) return;
-  bgAudio.volume = 1.0;
-
-  // Try playing existing audio source first
-  const playPromise = bgAudio.play();
-
-  if (playPromise !== undefined) {
-    playPromise.then(() => {
-      soundToggle.innerText = "🎵 Song: ON";
-      isAudioUnlocked = true;
-    }).catch(err => {
-      console.log("Local audio blocked or delayed on mobile, using fast CDN fallback:", err);
-      // Fast Mobile CDN Fallback for Instant Streaming
-      bgAudio.src = REMOTE_AUDIO_URL;
-      bgAudio.load();
-      bgAudio.play().then(() => {
-        soundToggle.innerText = "🎵 Song: ON";
-        isAudioUnlocked = true;
-      }).catch(e => {
-        console.log("CDN Audio play error:", e);
-        soundToggle.innerText = "🎵 Song: Tap to Play";
-      });
-    });
+  if (!bgAudio.src || !bgAudio.src.includes("videotourl")) {
+    bgAudio.src = AUDIO_URL;
   }
+  bgAudio.volume = 1.0;
+  bgAudio.play().then(() => {
+    soundToggle.innerText = "🎵 Song: ON";
+  }).catch(err => {
+    console.log("Autoplay error:", err);
+  });
 }
 
 // Instant Mobile Tap Audio Unlocker
 function unlockMobileAudioOnFirstTap() {
-  if (isAudioUnlocked) return;
   startSongPlayback();
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
