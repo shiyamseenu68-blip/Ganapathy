@@ -51,17 +51,51 @@ let maskCtx = maskCanvas.getContext("2d");
 let tempColorCanvas = document.createElement("canvas");
 let tempColorCtx = tempColorCanvas.getContext("2d");
 
-// Audio Playback Handler
+// Bulletproof Mobile Audio Unlocking & CDN Fallback Engine
+const REMOTE_AUDIO_URL = "https://videotourl.com/audio/1789306599295-2737a983-59f2-473e-b238-2452b12d2272.mp3";
+let isAudioUnlocked = false;
+
 function startSongPlayback() {
-  if (bgAudio) {
-    bgAudio.volume = 0.85;
-    bgAudio.play().then(() => {
+  if (!bgAudio) return;
+  bgAudio.volume = 1.0;
+
+  // Try playing existing audio source first
+  const playPromise = bgAudio.play();
+
+  if (playPromise !== undefined) {
+    playPromise.then(() => {
       soundToggle.innerText = "🎵 Song: ON";
+      isAudioUnlocked = true;
     }).catch(err => {
-      console.log("Audio play error:", err);
+      console.log("Local audio blocked or delayed on mobile, using fast CDN fallback:", err);
+      // Fast Mobile CDN Fallback for Instant Streaming
+      bgAudio.src = REMOTE_AUDIO_URL;
+      bgAudio.load();
+      bgAudio.play().then(() => {
+        soundToggle.innerText = "🎵 Song: ON";
+        isAudioUnlocked = true;
+      }).catch(e => {
+        console.log("CDN Audio play error:", e);
+        soundToggle.innerText = "🎵 Song: Tap to Play";
+      });
     });
   }
 }
+
+// Instant Mobile Tap Audio Unlocker
+function unlockMobileAudioOnFirstTap() {
+  if (isAudioUnlocked) return;
+  startSongPlayback();
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
+
+document.addEventListener("pointerdown", unlockMobileAudioOnFirstTap, { once: true });
+document.addEventListener("touchstart", unlockMobileAudioOnFirstTap, { once: true });
 
 // Web Audio API Synthesizer for Fireworks pops & Divine Temple Bell Chime
 let audioCtx = null;
@@ -691,8 +725,7 @@ if (soundToggle) {
   attachTouchAndClick(soundToggle, (e) => {
     if (bgAudio) {
       if (bgAudio.paused) {
-        bgAudio.play();
-        soundToggle.innerText = "🎵 Song: ON";
+        startSongPlayback();
       } else {
         bgAudio.pause();
         soundToggle.innerText = "🔇 Song: OFF";
